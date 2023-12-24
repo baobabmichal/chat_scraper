@@ -24,10 +24,12 @@ beautifulsoup4 = "^4.12.2"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.27.1"
+pandas = "^2.1.4"
 
 
 [tool.poetry.group.common.dependencies]
 pydantic = "^2.5.3"
+tqdm = "^4.66.1"
 
 [build-system]
 requires = ["poetry-core"]
