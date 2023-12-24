@@ -10,8 +10,8 @@ from tqdm import tqdm
 from packages.common.data_model import Room
 
 
-def get_rooms(driver: WebDriver, url: str, max_number: Optional[int] = None) -> list[Room]:
-    room_elements = get_elements_by_class(driver, "room-item", url, max_number)
+def get_rooms(driver: WebDriver, max_number: Optional[int] = None) -> list[Room]:
+    room_elements = get_elements_by_class(driver, "room-item", max_number)
     results = []
 
     seen = set()
@@ -27,10 +27,7 @@ def get_rooms(driver: WebDriver, url: str, max_number: Optional[int] = None) -> 
     return results
 
 
-def get_elements_by_class(
-    driver: WebDriver, class_name: str, url: str, max_number: Optional[int] = None
-) -> list[WebElement]:
-    driver.get(url)
+def get_elements_by_class(driver: WebDriver, class_name: str, max_number: Optional[int] = None) -> list[WebElement]:
     # wait for the page to load
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, class_name)))
 
@@ -38,3 +35,18 @@ def get_elements_by_class(
     if max_number:
         return elements[:max_number]
     return elements
+
+
+def click_element_by_class(driver: WebDriver, class_name: str) -> None:
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, class_name)))
+    driver.find_element(By.CLASS_NAME, class_name).click()
+
+
+def click_element_by_attribute(driver: WebDriver, css_selector: str) -> None:
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, css_selector)))
+    driver.find_element(By.CSS_SELECTOR, css_selector).click()
+
+
+def type_text_to_field(driver: WebDriver, id: str, text: str) -> None:
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, id)))
+    driver.find_element(By.ID, id).send_keys(text)
