@@ -1,0 +1,9 @@
+repos:
+
+- repo: local
+  hooks:
+    - id: isort
+      name: isort
+      entry: .hooks/isort.sh
+      pass_filenames: false
+      language: script
