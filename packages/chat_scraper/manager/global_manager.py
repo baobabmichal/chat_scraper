@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import TimeoutException
@@ -16,7 +15,7 @@ class GlobalManager:
         self.driver = driver
         self.page_status: PageStatus = PageStatus.main_page
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "room-item")))
-    
+
     def get_into_room(self, room_name: str) -> None:
         assert self.page_status == PageStatus.main_page
         room_elements = self.driver.find_elements(By.CLASS_NAME, "room-item")
@@ -28,7 +27,7 @@ class GlobalManager:
                 self.driver.get(link)
                 self.page_status: PageStatus = PageStatus.login_page
                 return
-    
+
     def log_into(self, user_login: str, user_password: str) -> None:
         assert self.page_status == PageStatus.login_page
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "rodo-popup-agree")))
@@ -53,6 +52,8 @@ class GlobalManager:
             elif self.page_status == PageStatus.login_page:
                 WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.ID, "nick-login")))
             elif self.page_status == PageStatus.room_page:
-                WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.CLASS_NAME, "m-messagesTextArea")))
+                WebDriverWait(self.driver, 5).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "m-messagesTextArea"))
+                )
         except TimeoutException as e:
-            raise(e)
+            raise (e)

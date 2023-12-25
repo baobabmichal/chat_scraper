@@ -2,10 +2,6 @@ import os
 
 from dotenv import load_dotenv
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 from packages.chat_scraper.manager.global_manager import GlobalManager, PageStatus
 
@@ -30,7 +26,7 @@ def test_global_manager():
 
     assert manager.page_status == PageStatus.login_page
     manager.check_page_status()
-    
+
     manager.log_into(USER_LOGIN, USER_PASSWORD)
 
     assert manager.page_status == PageStatus.room_page
