@@ -9,6 +9,12 @@ class CustomModel(BaseModel):
     model_config = ConfigDict(from_attributes=True, arbitrary_types_allowed=True)
 
 
+class PageStatus(enum.Enum):
+    main_page = "main_page"
+    login_page = "login_page"
+    room_page = "room_page"
+
+
 class TabListStatus(enum.Enum):
     all_visible = "all_visible"
     one_hidden = "one_hidden"
