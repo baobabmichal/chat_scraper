@@ -29,9 +29,9 @@ def test_global_manager():
     manager.check_page_status()
 
     manager.save_page_source()
-    for i in range(1,8):
+    for i in range(1, 8):
         manager.save_page_source()
         manager.room_manager.new_chat_random_registered_user()
-        assert manager.room_manager._count_tabs() == i+1
+        assert manager.room_manager._count_tabs() == i + 1
 
     driver.close()
