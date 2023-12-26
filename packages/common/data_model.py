@@ -15,11 +15,10 @@ class PageStatus(enum.Enum):
     room_page = "room_page"
 
 
-class TabListStatus(enum.Enum):
-    all_visible = "all_visible"
-    one_hidden = "one_hidden"
-    more_hidden_list_not_visible = "more_hidden_list_not_visible"
-    more_hidden_list_visible = "more_hidden_list_visible"
+class TabStatus(enum.Enum):
+    visible = "visible"
+    at_the_button = "at_the_button"
+    hidden = "hidden"
 
 
 class Room(CustomModel):
@@ -37,11 +36,3 @@ class User(CustomModel):
     user_name: str
     user_type: str
     web_element: Optional[WebElement]
-
-
-class Tab(CustomModel):
-    tab_name: str
-    tab_class: str
-    tab_visibility: bool
-    web_element: Optional[WebElement]
-    close_element: Optional[WebElement]

@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from tqdm import tqdm
 
-from packages.common.data_model import MainMessage, Tab, TabListStatus, User
+from packages.common.data_model import MainMessage, User
 
 
 class MessageUpdater:
@@ -52,61 +52,6 @@ class UserUpdater:
 
     def click_random_user(self):
         choice([user.web_element for user in self.users]).click()
-
-
-class TabManager:
-    def __init__(self, driver: WebDriver) -> None:
-        self.driver = driver
-        self.tab_list_status: TabListStatus = TabListStatus.all_visible
-        self.tabs: list[Tab] = []
-
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "m-tab-main-container-1-nav")))
-
-    def check_status(self) -> TabListStatus:
-        pass
-
-    def update(self):
-        self.tabs = []
-        tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
-        tab_elements = tabs_area.find_elements(By.TAG_NAME, "li")
-        for element in tab_elements:
-            tab_name = element.get_attribute("innerText")
-            tab_class = element.get_attribute("class")
-            close_elements = element.find_elements(By.CLASS_NAME, "close-room")
-            if len(close_elements) > 0:
-                self.tabs.append(
-                    Tab(
-                        tab_name=tab_name,
-                        tab_class=tab_class,
-                        web_element=element,
-                        tab_visibility=True,
-                        close_element=close_elements[0],
-                    )
-                )
-            else:
-                self.tabs.append(
-                    Tab(
-                        tab_name=tab_name,
-                        tab_class=tab_class,
-                        web_element=element,
-                        tab_visibility=True,
-                        close_element=None,
-                    )
-                )
-        tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav-listed")
-        tab_elements = tabs_area.find_elements(By.TAG_NAME, "li")
-        for element in tab_elements:
-            tab_name = element.get_attribute("innerText")
-            tab_class = element.get_attribute("class")
-            self.tabs.append(
-                Tab(
-                    tab_name=tab_name,
-                    tab_class=tab_class,
-                    web_element=element,
-                    tab_visibility=False,
-                    close_element=None,
-                )
-            )
 
 
 def send_main_message(driver: WebDriver, message: str):
