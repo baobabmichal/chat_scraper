@@ -27,6 +27,8 @@ def main():
             if option == "q":
                 manager.driver.close()
                 quit()
+            elif option == "save":
+                manager.save_page_source()
             elif option == "new":
                 manager.room_manager.open_chat_random_registered_user()
             elif option == "print":

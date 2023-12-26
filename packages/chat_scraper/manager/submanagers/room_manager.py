@@ -14,10 +14,11 @@ class RoomManager:
         self.driver = driver
         self.room_name = room_name
 
-        self.tabs_active: list[str] = [room_name]
-        self.tabs_visible: list[str] = []
+        self.tabs_visible: list[str] = [room_name]
         self.tabs_at_the_button: list[str] = []
         self.tabs_listed: list[str] = []
+
+        self.tab_active: str = room_name
 
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "m-tab-main-container-1-nav")))
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "m-usersList-sublist")))
@@ -40,7 +41,7 @@ class RoomManager:
     def open_chat_random_registered_user(self) -> None:
         if self._count_tabs() == MAX_TABS:
             raise ValueError("Max number of tabs!")
-        if self.tabs_active != [self.room_name]:
+        if self.tab_active != self.room_name:
             self._choose_room()
         primary_list = self.driver.find_elements(By.CLASS_NAME, "m-user-list-primary")
         sublist = primary_list[-1].find_elements(By.CLASS_NAME, "m-usersList-sublist")[4]
@@ -60,18 +61,19 @@ class RoomManager:
         self._update_statuses()
 
     def choose_random_tab(self) -> None:
-        not_active_tabs = list(chain(self.tabs_visible, self.tabs_at_the_button, self.tabs_listed))
+        not_active_tabs = self._all_tabs()
+        not_active_tabs.remove(self.tab_active)
         tab_name = choice(not_active_tabs)
         self._choose_tab(tab_name)
 
     def close_current_tab(self) -> None:
-        if self.tabs_active[0] == self.room_name:
+        if self.tab_active == self.room_name:
             raise ValueError("Cannot close room!")
         else:
-            self._close_tab(self.tabs_active[0])
+            self._close_tab(self.tab_active)
 
     def print_current_tab_info(self) -> None:
-        title = "=" * 10 + self.tabs_active[0] + "=" * 10 + "\n"
+        title = "=" * 10 + self.tab_active + "=" * 10 + "\n"
         messages = self._get_all_messages()
         print(title + messages)
 
@@ -83,7 +85,7 @@ class RoomManager:
         self._choose_tab(self.room_name)
 
     def _choose_tab(self, tab_name: str) -> None:
-        if tab_name in self.tabs_active:
+        if tab_name == self.tab_active:
             return
         elif tab_name in self.tabs_at_the_button:
             self._click_more_button()
@@ -111,7 +113,7 @@ class RoomManager:
         raise ValueError("Tab not found!")
 
     def _close_tab(self, tab_name: str) -> None:
-        if tab_name in self.tabs_active or tab_name in self.tabs_visible:
+        if tab_name in self.tabs_visible:
             tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
             tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
             for element in tab_elements:
@@ -144,7 +146,7 @@ class RoomManager:
         self.driver.find_element(By.ID, "m-more-button").click()
 
     def _all_tabs(self) -> list[str]:
-        return list(chain(self.tabs_active, self.tabs_visible, self.tabs_at_the_button, self.tabs_listed))
+        return list(chain(self.tabs_visible, self.tabs_at_the_button, self.tabs_listed))
 
     def _count_tabs(self) -> int:
         return len(self._all_tabs())
@@ -156,13 +158,11 @@ class RoomManager:
     def _update_statuses(self) -> None:
         tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
         tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
-        self.tabs_active = []
         self.tabs_visible = []
         for element in tab_elements:
+            self.tabs_visible.append(element.get_attribute("innerText").upper())
             if element.get_attribute("class") == "active":
-                self.tabs_active = [element.get_attribute("innerText").upper()]
-            elif element.get_attribute("innerText") != "":
-                self.tabs_visible.append(element.get_attribute("innerText").upper())
+                self.tab_active = element.get_attribute("innerText").upper()
 
         tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav-listed")
         tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
