@@ -46,7 +46,7 @@ def test_add_and_delete():
 
 def test_random_moves():
     options = webdriver.FirefoxOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     driver = webdriver.Firefox(options=options)
 
     manager = GlobalManager(driver, room_url=ROOM_URL, room_name=ROOM)

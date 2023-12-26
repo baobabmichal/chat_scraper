@@ -27,21 +27,17 @@ class RoomManager:
         WebDriverWait(sublist, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "m-list-user-item")))
 
     def random_move(self) -> None:
-        if self._count_tabs() == MAX_TABS:
-            methods_available = [
-                self.close_chat_random_registered_user,
-                self.choose_random_tab,
-                partial(self.send_message, "elo"),
-            ]
-        elif self._count_tabs() == 1:
-            methods_available = [self.open_chat_random_registered_user]
-        else:
-            methods_available = [
-                self.close_chat_random_registered_user,
-                self.open_chat_random_registered_user,
-                self.choose_random_tab,
-                partial(self.send_message, "elo"),
-            ]
+        methods_available = []
+        if self._count_tabs() > 1:
+            methods_available.append(self.choose_random_tab)
+            methods_available.append(self.close_chat_random_registered_user)
+
+        if self._count_tabs() < MAX_TABS:
+            methods_available.append(self.open_chat_random_registered_user)
+
+        if self.tab_active != self.room_name:
+            methods_available.append(partial(self.send_message, "elo"))
+
         choice(methods_available)()
 
     def open_chat_random_registered_user(self) -> None:
@@ -84,9 +80,9 @@ class RoomManager:
         print(title + messages)
 
     def send_message(self, message: str):
-        active_tab_index = self.tabs_visible.index(self.tab_active)
-        self.driver.find_elements(By.CLASS_NAME, "text-input")[active_tab_index].send_keys(message)
-        self.driver.find_elements(By.CLASS_NAME, "button-send")[active_tab_index].click()
+        active_id = self._get_active_tab_id()
+        self.driver.find_element(By.ID, f"m-textMessage-{active_id}").send_keys(message)
+        self.driver.find_element(By.ID, f"m-sendMessage-button-{active_id}").click()
 
     def _choose_room(self) -> None:
         self._choose_tab(self.room_name)
@@ -159,8 +155,9 @@ class RoomManager:
         return len(self._all_tabs())
 
     def _get_all_messages(self) -> str:
-        text_area = self.driver.find_element(By.CLASS_NAME, "m-messagesTextArea")
-        return text_area.get_attribute("innerText")
+        active_id = self._get_active_tab_id()
+        message_area = self.driver.find_element(By.ID, f"m-messages_{active_id}")
+        return message_area.get_attribute("innerText")
 
     def _update_statuses(self) -> None:
         tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
@@ -183,3 +180,9 @@ class RoomManager:
                 for element in tab_elements
                 if element.get_attribute("innerText") != ""
             ]
+
+    def _get_active_tab_id(self) -> int:
+        active_tab_index = self.tabs_visible.index(self.tab_active)
+        tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
+        active_tab = tabs_area.find_elements(By.TAG_NAME, "a")[active_tab_index]
+        return active_tab.get_attribute("id").split("-")[-1]
