@@ -52,8 +52,7 @@ class RoomManager:
         if self._count_tabs() == MAX_TABS:
             methods_available = [self.close_chat_random_registered_user, self.choose_random_tab]
         elif self._count_tabs() == 1:
-            methods_available = [
-                self.open_chat_random_registered_user]
+            methods_available = [self.open_chat_random_registered_user]
         else:
             methods_available = [
                 self.close_chat_random_registered_user,
