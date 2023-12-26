@@ -1,3 +1,4 @@
+import random
 from itertools import chain
 from random import choice
 
@@ -26,7 +27,7 @@ class RoomManager:
 
     def update_statuses(self) -> None:
         tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
-        tab_elements = tabs_area.find_elements(By.TAG_NAME, "li")
+        tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
         self.tabs_active = []
         self.tabs_visible = []
         for element in tab_elements:
@@ -36,8 +37,8 @@ class RoomManager:
                 self.tabs_visible.append(element.get_attribute("innerText").upper())
 
         tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav-listed")
-        tab_elements = tabs_area.find_elements(By.TAG_NAME, "li")
-        if len(tab_elements) == 2:
+        tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
+        if len(tab_elements) == 1:
             self.tabs_at_the_button = [tab_elements[0].get_attribute("innerText").upper()]
             self.tabs_listed = []
         else:
@@ -47,6 +48,16 @@ class RoomManager:
                 for element in tab_elements
                 if element.get_attribute("innerText") != ""
             ]
+
+    def random_move(self) -> None:
+        if self._count_tabs() == MAX_TABS:
+            self.close_chat_random_registered_user()
+        elif self._count_tabs() == 1:
+            self.new_chat_random_registered_user()
+        elif bool(random.getrandbits(1)):  # coin toss
+            self.close_chat_random_registered_user()
+        else:
+            self.new_chat_random_registered_user()
 
     def new_chat_random_registered_user(self) -> None:
         if self._count_tabs() == MAX_TABS:
@@ -59,16 +70,21 @@ class RoomManager:
         user_elements = sublist.find_elements(By.CLASS_NAME, "m-list-user-item")
         user_element = choice(user_elements)
         user_element.click()
-        user_name = user_element.get_attribute("innerText")
-        print(f"Opening chat with {user_name}")
+        self.update_statuses()
+
+    def close_chat_random_registered_user(self) -> None:
+        if self._count_tabs() == 1:
+            raise ValueError("No chats open!")
+        tabs = self._all_tabs()
+        tabs.remove(self.room_name)
+        user_name = choice(tabs)
+        self._close_tab(user_name)
         self.update_statuses()
 
     def choose_room(self) -> None:
-        print(f"Choosing room tab: {self.room_name}")
         self._choose_tab(self.room_name)
 
     def choose_user(self, user_name) -> None:
-        print(f"Choosing user tab: {user_name}")
         self._choose_tab(user_name)
 
     def _choose_tab(self, tab_name: str) -> None:
@@ -80,22 +96,20 @@ class RoomManager:
             return
         elif tab_name in self.tabs_visible:
             tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
-            tab_elements = tabs_area.find_elements(By.TAG_NAME, "li")
+            tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
             for element in tab_elements:
                 element_name = element.get_attribute("innerText")
                 if element_name == tab_name.upper():
-                    print(f"Tab {tab_name} found!")
                     element.click()
                     self.update_statuses()
                     return
         elif tab_name in self.tabs_listed:
             self.click_more_button()
             tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav-listed")
-            tab_elements = tabs_area.find_elements(By.TAG_NAME, "li")
+            tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
             for element in tab_elements:
                 element_name = element.get_attribute("innerText")
                 if element_name == tab_name.upper():
-                    print(f"Tab {tab_name} found!")
                     element.click()
                     self.update_statuses()
                     return
@@ -104,11 +118,10 @@ class RoomManager:
     def _close_tab(self, tab_name: str) -> None:
         if tab_name in self.tabs_active or tab_name in self.tabs_visible:
             tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
-            tab_elements = tabs_area.find_elements(By.TAG_NAME, "li")
+            tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
             for element in tab_elements:
                 element_name = element.get_attribute("innerText")
                 if element_name == tab_name.upper():
-                    print(f"Tab {tab_name} found!")
                     close_button = element.find_element(By.CLASS_NAME, "close-room")
                     close_button.click()
                     self.update_statuses()
@@ -122,19 +135,17 @@ class RoomManager:
         elif tab_name in self.tabs_listed:
             self.click_more_button()
             tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav-listed")
-            tab_elements = tabs_area.find_elements(By.TAG_NAME, "li")
+            tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
             for element in tab_elements:
                 element_name = element.get_attribute("innerText")
                 if element_name == tab_name.upper():
-                    print(f"Tab {tab_name} found!")
                     close_button = element.find_element(By.CLASS_NAME, "close-room")
                     close_button.click()
                     self.update_statuses()
                     return
-        raise ValueError("Tab not found!")
+        raise ValueError(f"Tab {tab_name} not found!")
 
     def click_more_button(self) -> None:
-        print("Clicking more button")
         self.driver.find_element(By.ID, "m-more-button").click()
 
     def _all_tabs(self) -> list[str]:

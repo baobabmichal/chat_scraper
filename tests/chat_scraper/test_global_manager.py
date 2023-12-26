@@ -28,10 +28,15 @@ def test_global_manager():
     assert manager.page_status == PageStatus.room_page
     manager.check_page_status()
 
-    manager.save_page_source()
     for i in range(1, 8):
-        manager.save_page_source()
         manager.room_manager.new_chat_random_registered_user()
         assert manager.room_manager._count_tabs() == i + 1
+
+    for i in range(1, 8):
+        manager.room_manager.close_chat_random_registered_user()
+        assert manager.room_manager._count_tabs() == 8 - i
+
+    for _ in range(10):
+        manager.room_manager.random_move()
 
     driver.close()
