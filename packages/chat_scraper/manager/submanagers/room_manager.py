@@ -30,7 +30,7 @@ class RoomManager:
         self.tabs_active = []
         self.tabs_visible = []
         for element in tab_elements:
-            if element.get_attribute("class") == "activeli":
+            if element.get_attribute("class") == "active":
                 self.tabs_active = [element.get_attribute("innerText").upper()]
             elif element.get_attribute("innerText") != "":
                 self.tabs_visible.append(element.get_attribute("innerText").upper())
@@ -161,3 +161,12 @@ class RoomManager:
     def send_message(self, message: str):
         self.driver.find_element(By.CLASS_NAME, "text-input").send_keys(message)
         self.driver.find_element(By.CLASS_NAME, "button-send").click()
+
+    def get_all_messages(self) -> str:
+        text_area = self.driver.find_element(By.CLASS_NAME, "m-messagesTextArea")
+        return text_area.get_attribute("innerText")
+
+    def print_current_tab_info(self) -> str:
+        title = "=" * 10 + self.tabs_active[0] + "=" * 10 + "\n"
+        messages = self.get_all_messages()
+        print(title + messages)
