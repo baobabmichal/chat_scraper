@@ -28,7 +28,11 @@ class RoomManager:
 
     def random_move(self) -> None:
         if self._count_tabs() == MAX_TABS:
-            methods_available = [self.close_chat_random_registered_user, self.choose_random_tab, partial(self.send_message,"elo")]
+            methods_available = [
+                self.close_chat_random_registered_user,
+                self.choose_random_tab,
+                partial(self.send_message, "elo"),
+            ]
         elif self._count_tabs() == 1:
             methods_available = [self.open_chat_random_registered_user]
         else:
@@ -36,7 +40,7 @@ class RoomManager:
                 self.close_chat_random_registered_user,
                 self.open_chat_random_registered_user,
                 self.choose_random_tab,
-                partial(self.send_message,"elo")
+                partial(self.send_message, "elo"),
             ]
         choice(methods_available)()
 
