@@ -16,7 +16,7 @@ USER_PASSWORD = os.environ["USER_PASSWORD"]
 
 def test_add_and_delete():
     options = webdriver.FirefoxOptions()
-    options.add_argument("--headless")
+    # options.add_argument("--headless")
     driver = webdriver.Firefox(options=options)
 
     manager = GlobalManager(driver, room_url=ROOM_URL, room_name=ROOM)

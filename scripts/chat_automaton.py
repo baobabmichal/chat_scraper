@@ -27,6 +27,8 @@ def main():
             if option == "q":
                 manager.driver.close()
                 quit()
+            elif option == "debug":
+                manager.room_manager.print_users_list()
             elif option == "save":
                 manager.save_page_source()
             elif option == "new":
@@ -35,6 +37,8 @@ def main():
                 manager.room_manager.print_current_tab_info()
             elif option == "close":
                 manager.room_manager.close_current_tab()
+            elif option == "update":
+                manager.room_manager._update_statuses()
             elif option == "tabs":
                 print(manager.room_manager._all_tabs())
             elif option.isnumeric() and int(option) in list(range(manager.room_manager._count_tabs())):

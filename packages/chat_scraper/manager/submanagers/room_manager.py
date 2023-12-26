@@ -55,9 +55,19 @@ class RoomManager:
         if self.tab_active != self.room_name:
             self._choose_room()
         sublist = self.driver.find_element(By.ID, f"m-users-registered_{self.room_id}")
+        new_users = [
+            user
+            for user in sublist.get_attribute("innerText").splitlines()
+            if user.upper() not in self.id2name_mapping.values()
+        ]
+        random_user = choice(new_users)
+        selected_index = sublist.get_attribute("innerText").splitlines().index(random_user)
+
         WebDriverWait(sublist, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "m-list-user-item")))
-        user_elements = sublist.find_elements(By.CLASS_NAME, "m-list-user-item")
-        user_element = choice(user_elements)
+        elements = sublist.find_elements(By.CLASS_NAME, "m-list-user-item")
+        user_element = elements[selected_index]
+        assert random_user == user_element.get_attribute("innerText")
+
         user_element.click()
         self._update_statuses()
 
@@ -143,9 +153,12 @@ class RoomManager:
         return message_area.get_attribute("innerText")
 
     def _update_statuses(self) -> None:
+        self.tabs_visible = []
+        self.tabs_at_the_button = []
+        self.tabs_listed = []
+        self.id2name_mapping = {}
         tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav")
         tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
-        self.tabs_visible = []
         for element in tab_elements:
             name = element.get_attribute("innerText").upper()
             id = extract_id(element)
@@ -157,13 +170,13 @@ class RoomManager:
         tabs_area = self.driver.find_element(By.ID, "m-tab-main-container-1-nav-listed")
         tab_elements = tabs_area.find_elements(By.TAG_NAME, "a")
         if len(tab_elements) == 1:
-            name = tab_elements[0].get_attribute("innerText").upper()
+            element = tab_elements[0]
+            name = element.get_attribute("innerText").upper()
             id = extract_id(element)
             self.tabs_at_the_button = [id]
             self.tabs_listed = []
             self.id2name_mapping[id] = name
         else:
-            self.tabs_at_the_button = []
             for element in tab_elements:
                 name = element.get_attribute("innerText").upper()
                 id = extract_id(element)
