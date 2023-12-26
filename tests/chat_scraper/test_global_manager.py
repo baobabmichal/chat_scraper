@@ -29,7 +29,7 @@ def test_global_manager():
     manager.check_page_status()
 
     for i in range(1, 8):
-        manager.room_manager.new_chat_random_registered_user()
+        manager.room_manager.open_chat_random_registered_user()
         assert manager.room_manager._count_tabs() == i + 1
 
     for i in range(1, 8):

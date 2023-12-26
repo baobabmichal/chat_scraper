@@ -1,4 +1,3 @@
-import random
 from itertools import chain
 from random import choice
 
@@ -51,15 +50,19 @@ class RoomManager:
 
     def random_move(self) -> None:
         if self._count_tabs() == MAX_TABS:
-            self.close_chat_random_registered_user()
+            methods_available = [self.close_chat_random_registered_user, self.choose_random_tab]
         elif self._count_tabs() == 1:
-            self.new_chat_random_registered_user()
-        elif bool(random.getrandbits(1)):  # coin toss
-            self.close_chat_random_registered_user()
+            methods_available = [
+                self.open_chat_random_registered_user]
         else:
-            self.new_chat_random_registered_user()
+            methods_available = [
+                self.close_chat_random_registered_user,
+                self.open_chat_random_registered_user,
+                self.choose_random_tab,
+            ]
+        choice(methods_available)()
 
-    def new_chat_random_registered_user(self) -> None:
+    def open_chat_random_registered_user(self) -> None:
         if self._count_tabs() == MAX_TABS:
             raise ValueError("Max number of tabs!")
         if self.tabs_active != [self.room_name]:
@@ -81,11 +84,13 @@ class RoomManager:
         self._close_tab(user_name)
         self.update_statuses()
 
+    def choose_random_tab(self) -> None:
+        not_active_tabs = list(chain(self.tabs_visible, self.tabs_at_the_button, self.tabs_listed))
+        tab_name = choice(not_active_tabs)
+        self._choose_tab(tab_name)
+
     def choose_room(self) -> None:
         self._choose_tab(self.room_name)
-
-    def choose_user(self, user_name) -> None:
-        self._choose_tab(user_name)
 
     def _choose_tab(self, tab_name: str) -> None:
         if tab_name in self.tabs_active:
@@ -153,3 +158,7 @@ class RoomManager:
 
     def _count_tabs(self) -> int:
         return len(self._all_tabs())
+
+    def send_message(self, message: str):
+        self.driver.find_element(By.CLASS_NAME, "text-input").send_keys(message)
+        self.driver.find_element(By.CLASS_NAME, "button-send").click()
