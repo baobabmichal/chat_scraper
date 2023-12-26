@@ -1,3 +1,4 @@
+from functools import partial
 from itertools import chain
 from random import choice
 
@@ -27,7 +28,7 @@ class RoomManager:
 
     def random_move(self) -> None:
         if self._count_tabs() == MAX_TABS:
-            methods_available = [self.close_chat_random_registered_user, self.choose_random_tab]
+            methods_available = [self.close_chat_random_registered_user, self.choose_random_tab, partial(self.send_message,"elo")]
         elif self._count_tabs() == 1:
             methods_available = [self.open_chat_random_registered_user]
         else:
@@ -35,6 +36,7 @@ class RoomManager:
                 self.close_chat_random_registered_user,
                 self.open_chat_random_registered_user,
                 self.choose_random_tab,
+                partial(self.send_message,"elo")
             ]
         choice(methods_available)()
 
@@ -78,8 +80,9 @@ class RoomManager:
         print(title + messages)
 
     def send_message(self, message: str):
-        self.driver.find_element(By.CLASS_NAME, "text-input").send_keys(message)
-        self.driver.find_element(By.CLASS_NAME, "button-send").click()
+        active_tab_index = self.tabs_visible.index(self.tab_active)
+        self.driver.find_elements(By.CLASS_NAME, "text-input")[active_tab_index].send_keys(message)
+        self.driver.find_elements(By.CLASS_NAME, "button-send")[active_tab_index].click()
 
     def _choose_room(self) -> None:
         self._choose_tab(self.room_name)
