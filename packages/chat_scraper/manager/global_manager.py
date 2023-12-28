@@ -13,9 +13,16 @@ from packages.common.data_model import PageStatus
 
 
 class GlobalManager:
-    def __init__(self, driver: WebDriver, room_url: Optional[str] = None, room_name: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        driver: WebDriver,
+        room_url: Optional[str] = None,
+        room_name: Optional[str] = None,
+        data_path: Optional[Path] = None,
+    ) -> None:
         self.driver = driver
         self.room_manager: Optional[RoomManager] = None
+        self.data_path: Optional[Path] = data_path
 
         if room_url and room_name:
             self.driver.get(room_url)
@@ -49,7 +56,7 @@ class GlobalManager:
         self.driver.find_element(By.ID, "password-login").send_keys(user_password)
         self.driver.find_element(By.ID, "enter-login").click()
         self.page_status = PageStatus.room_page
-        self.room_manager = RoomManager(self.driver, room_name=self.room_name)
+        self.room_manager = RoomManager(self.driver, room_name=self.room_name, data_path=self.data_path)
 
     def save_page_source(self, file_path: Path = Path("source.html")) -> None:
         html_content = self.driver.page_source
